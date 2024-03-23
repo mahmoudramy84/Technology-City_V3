@@ -124,9 +124,8 @@ class StoreCommand(cmd.Cmd):
     def do_update(self, arg):
         """Update an instance based on the class name, id, attribute & value"""
         args = shlex.split(arg)
-        integers = ["number_rooms", "number_bathrooms", "max_guest",
-                    "price_by_night"]
-        floats = ["latitude", "longitude"]
+        integers = ["number_pieces"]
+        floats = ["price"]
         if len(args) == 0:
             print("** class name missing **")
         elif args[0] in classes:
@@ -135,7 +134,7 @@ class StoreCommand(cmd.Cmd):
                 if k in models.storage.all():
                     if len(args) > 2:
                         if len(args) > 3:
-                            if args[0] == "Place":
+                            if args[0] == "Product":
                                 if args[2] in integers:
                                     try:
                                         args[3] = int(args[3])
