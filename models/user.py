@@ -1,9 +1,8 @@
 #!/usr/bin/python3
 """ holds class User"""
-import models
 from models.base_model import BaseModel, Base
+from models.product import Product
 from os import getenv
-import sqlalchemy
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 
@@ -16,10 +15,22 @@ class User(BaseModel, Base):
     password = Column(String(128), nullable=False)
     first_name = Column(String(128), nullable=True)
     last_name = Column(String(128), nullable=True)
-    product = relationship("Product", backref="user")
-    reviews = relationship("Review", backref="user")
 
+    # One-to-Many relationship: One user can have many reviews
+    reviews = relationship("Review", backref="author")
+
+    # Many-to-Many relationship: Users can have many products and vice versa
+    products = relationship("Product", backref='user', foreign_keys=[Product.user_id], primaryjoin="User.id==Product.user_id")
 
     def __init__(self, *args, **kwargs):
         """initializes user"""
         super().__init__(*args, **kwargs)
+"""
+    @property
+    def password(self):
+        return self._password
+
+    @password.setter
+    def password(self, pwd):
+        self._password = hashlib.md5(pwd.encode()).hexdigest()
+"""

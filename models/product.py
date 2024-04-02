@@ -1,9 +1,7 @@
 #!/usr/bin/python3
 """ holds class product"""
-import models
 from models.base_model import BaseModel, Base
 from os import getenv
-import sqlalchemy
 from sqlalchemy import Column, String, Integer, Float, ForeignKey
 from sqlalchemy.orm import relationship
 
@@ -16,8 +14,9 @@ class Product(BaseModel, Base):
     description = Column(String(1024), nullable=True)
     number_pieces = Column(Integer, nullable=True, default=0)
     price = Column(Float, nullable=False, default=0)
-    reviews = relationship("Review", backref="product")
 
+    # One-to-Many relationship: One product can have many reviews
+    reviews = relationship("Review", backref="product")
 
     def __init__(self, *args, **kwargs):
         """initializes Product"""

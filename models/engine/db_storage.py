@@ -3,7 +3,6 @@
 Contains the class DBStorage
 """
 
-import json
 from models.base_model import BaseModel, Base
 from models.product import Product
 from models.review import Review
@@ -67,3 +66,11 @@ class DBStorage:
         sess_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
         Session = scoped_session(sess_factory)
         self.__session = Session
+
+    def close(self):
+        """call remove() method on the private session attribute"""
+        self.__session.remove()
+
+    def get(self, cls, id):
+        """Retrieve an object by class and ID"""
+        return self.__session.query(cls).get(id)
