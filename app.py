@@ -1,10 +1,12 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 from models.user import User
 from models.product import Product
 from models.review import Review
 from models import storage
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 
 # Get all users
 @app.route('/api/users', methods=['GET'])
@@ -26,6 +28,30 @@ def get_reviews():
     reviews = storage.all(Review).values()
     serialized_reviews = [review.to_dict() for review in reviews]
     return jsonify(serialized_reviews)
+
+#Get Product by ID
+@app.route('/api/products/<product_id>', methods=['GET'])
+def get_product_by_id(product_id):
+    product = storage.get(Product, product_id)
+    if product:
+        return jsonify(product.to_dict())
+    return jsonify({"error": "Product not found"}), 404
+
+#Get User by ID:
+@app.route('/api/users/<user_id>', methods=['GET'])
+def get_user_by_id(user_id):
+    user = storage.get(User, user_id)
+    if user:
+        return jsonify(user.to_dict())
+    return jsonify({"error": "User not found"}), 404
+
+#Get Review by ID:
+@app.route('/api/reviews/<review_id>', methods=['GET'])
+def get_review_by_id(review_id):
+    review = storage.get(Review, review_id)
+    if review:
+        return jsonify(review.to_dict())
+    return jsonify({"error": "Review not found"}), 404
 
 # Create a new user
 @app.route('/api/users', methods=['POST'])
