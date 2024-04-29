@@ -4,6 +4,8 @@ from models.user import User
 from models.product import Product
 from models.review import Review
 from models import storage
+from werkzeug.security import check_password_hash, generate_password_hash
+
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -145,6 +147,44 @@ def delete_review(review_id):
         storage.save()
         return jsonify({"message": "Review deleted successfully"}), 200
     return jsonify({"error": "Review not found"}), 404
+
+# Implement User Signup Endpoint
+@app.route('/api/signup', methods=['POST'])
+def signup():
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+
+    # Check if user with the email already exists
+    if User.query.filter_by(email=email).first():
+        return jsonify({'error': 'User already exists'}), 400
+
+    # Hash the password before storing it
+    hashed_password = generate_password_hash(password)
+
+    # Create a new user
+    new_user = User(email=email, password=hashed_password)
+    storage.new(new_user)
+    storage.save()
+
+    return jsonify({'message': 'User registered successfully'}), 201
+
+# Implement User Authentication Endpoint
+@app.route('/api/authenticate', methods=['POST'])
+def authenticate():
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+
+    user = User.query.filter_by(email=email).first()
+
+    if user and check_password_hash(user.password, password):
+        """# Generate a token for the user
+        token = generate_token(user.id)
+        return jsonify({'token': token}), 200 """
+        return jsonify({'message': 'User login successfully'}), 201
+
+    return jsonify({'error': 'Invalid credentials'}), 401
 
 if __name__ == '__main__':
     app.run(debug=True)

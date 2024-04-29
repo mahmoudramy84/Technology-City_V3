@@ -5,6 +5,8 @@ from models.product import Product
 from os import getenv
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
+from werkzeug.security import generate_password_hash
+
 
 
 class User(BaseModel, Base):
@@ -25,6 +27,11 @@ class User(BaseModel, Base):
     def __init__(self, *args, **kwargs):
         """initializes user"""
         super().__init__(*args, **kwargs)
+
+        if 'password' in kwargs:
+            # Hash the password before storing it
+            self.password = generate_password_hash(kwargs['password'])
+
 """
     @property
     def password(self):
