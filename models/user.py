@@ -14,7 +14,7 @@ class User(BaseModel, Base):
     
     __tablename__ = 'users'
     email = Column(String(128), nullable=False)
-    password = Column(String(128), nullable=False)
+    password = Column(String(512), nullable=False)
     first_name = Column(String(128), nullable=True)
     last_name = Column(String(128), nullable=True)
 
@@ -28,9 +28,6 @@ class User(BaseModel, Base):
         """initializes user"""
         super().__init__(*args, **kwargs)
 
-        if 'password' in kwargs:
-            # Hash the password before storing it
-            self.password = generate_password_hash(kwargs['password'])
 
 """
     @property

@@ -155,15 +155,13 @@ def signup():
     email = data.get('email')
     password = data.get('password')
 
-    # Check if user with the email already exists
-    if User.query.filter_by(email=email).first():
+    existing_user = next((user for user in storage.all(User).values() if user.email == email), None)
+
+    if existing_user:
         return jsonify({'error': 'User already exists'}), 400
 
-    # Hash the password before storing it
-    hashed_password = generate_password_hash(password)
-
-    # Create a new user
-    new_user = User(email=email, password=hashed_password)
+    #hashed_password = generate_password_hash(password)
+    new_user = User(email=email, password=password)
     storage.new(new_user)
     storage.save()
 
@@ -176,15 +174,25 @@ def authenticate():
     email = data.get('email')
     password = data.get('password')
 
-    user = User.query.filter_by(email=email).first()
+    if not email or not password:
+        return jsonify({'error': 'Email and password are required'}), 400
 
-    if user and check_password_hash(user.password, password):
-        """# Generate a token for the user
-        token = generate_token(user.id)
-        return jsonify({'token': token}), 200 """
-        return jsonify({'message': 'User login successfully'}), 201
+    user = next((user for user in storage.all(User).values() if user.email == email), None)
 
-    return jsonify({'error': 'Invalid credentials'}), 401
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    print("Password provided:", password)
+    print("Hashed password in database:", user.password)
+
+    if not (user.password == password):
+        print("Password check failed")
+        return jsonify({'error': 'Invalid password'}), 401
+
+    print("Password check passed")
+
+    return jsonify({'message': 'User login successful'}), 200
+
 
 if __name__ == '__main__':
     app.run(debug=True)

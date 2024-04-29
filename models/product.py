@@ -14,8 +14,8 @@ class Product(BaseModel, Base):
     description = Column(String(1024), nullable=True)
     number_pieces = Column(Integer, nullable=True, default=0)
     price = Column(Float, nullable=False, default=0)
-    #image_url = Column(String(255), nullable=True)
-    #category = Column(String(1024), nullable=True)
+    image_url = Column(String(512), nullable=True)
+    category = Column(String(128), nullable=True)
 
     # One-to-Many relationship: One product can have many reviews
     reviews = relationship("Review", backref="product")
