@@ -9,7 +9,7 @@ from sqlalchemy.orm import relationship
 class Product(BaseModel, Base):
     """Representation of product """
     __tablename__ = 'products'
-    user_id = Column(String(60), ForeignKey('users.id'))
+    user_id = Column(String(256), ForeignKey('users.id'))
     name = Column(String(128), nullable=False)
     description = Column(String(1024), nullable=True)
     number_pieces = Column(Integer, nullable=True, default=0)
