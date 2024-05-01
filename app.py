@@ -154,6 +154,8 @@ def signup():
     data = request.json
     email = data.get('email')
     password = data.get('password')
+    first_name = data.get('first_name')
+    last_name = data.get('last_name')
 
     existing_user = next((user for user in storage.all(User).values() if user.email == email), None)
 
@@ -161,7 +163,7 @@ def signup():
         return jsonify({'error': 'User already exists'}), 400
 
     #hashed_password = generate_password_hash(password)
-    new_user = User(email=email, password=password)
+    new_user = User(email=email, password=password, first_name=first_name, last_name=last_name)
     storage.new(new_user)
     storage.save()
 
