@@ -18,15 +18,12 @@ CORS(app, supports_credentials=True)
 
 UPLOAD_FOLDER = 'uploads'  # Folder to store uploaded files
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # JWT secret key (replace with a secure random string in production)
 app.config['SECRET_KEY'] = '|C&U8hg=Zf+c-`;FVY^C'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)  # Set token expiration time
 jwt = JWTManager(app)
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 
 # Get all users
 @app.route('/api/users', methods=['GET'])
@@ -88,27 +85,6 @@ def create_user():
 @app.route('/api/products', methods=['POST'])
 def create_product():
     data = request.json
-    # Handle image upload
-    if 'image' in request.files:
-        file = request.files['image']
-        if file:
-            filename = secure_filename(file.filename)
-            # Check if the file has an allowed extension
-            if allowed_file(filename):
-                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                # Check for filename conflicts
-                if os.path.exists(file_path):
-                    return jsonify({"error": "Filename conflict. Please choose a different filename."}), 400
-                # Save the file
-                file.save(file_path)
-                data['image_url'] = file_path
-            else:
-                return jsonify({"error": "Invalid file type. Allowed file types are: png, jpg, jpeg, gif"}), 400
-        else:
-            return jsonify({"error": "No file provided"}), 400
-    else:
-        return jsonify({"error": "No image file provided"}), 400
-
     new_product = Product(**data)
     storage.new(new_product)
     storage.save()
@@ -235,6 +211,28 @@ def authenticate():
     else:
         return jsonify({'error': 'Invalid credentials'}), 401
 
+# Endpoint to handle image uploads
+@app.route('/api/upload', methods=['POST'])
+def upload_image():
+    if 'image_url' not in request.files:
+        return jsonify({'error': 'No file part'}), 400
+
+    file = request.files['image_url']
+
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'}), 400
+
+    if file:
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        # Create the uploads directory if it doesn't exist
+        os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+
+        file.save(file_path)
+        return jsonify({'message': 'File uploaded successfully', 'file_path': file_path}), 200
+
+    return jsonify({'error': 'Upload failed'}), 500
 
 
 if __name__ == '__main__':
