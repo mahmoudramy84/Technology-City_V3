@@ -5,6 +5,7 @@ from models.product import Product
 from models.review import Review
 from models import storage
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from datetime import timedelta
 import os
@@ -22,6 +23,10 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config['SECRET_KEY'] = '|C&U8hg=Zf+c-`;FVY^C'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)  # Set token expiration time
 jwt = JWTManager(app)
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in {'png', 'jpg', 'jpeg', 'gif'}
 
 # Get all users
 @app.route('/api/users', methods=['GET'])
@@ -87,10 +92,22 @@ def create_product():
     if 'image' in request.files:
         file = request.files['image']
         if file:
-            filename = file.filename
-            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(file_path)
-            data['image_url'] = file_path
+            filename = secure_filename(file.filename)
+            # Check if the file has an allowed extension
+            if allowed_file(filename):
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                # Check for filename conflicts
+                if os.path.exists(file_path):
+                    return jsonify({"error": "Filename conflict. Please choose a different filename."}), 400
+                # Save the file
+                file.save(file_path)
+                data['image_url'] = file_path
+            else:
+                return jsonify({"error": "Invalid file type. Allowed file types are: png, jpg, jpeg, gif"}), 400
+        else:
+            return jsonify({"error": "No file provided"}), 400
+    else:
+        return jsonify({"error": "No image file provided"}), 400
 
     new_product = Product(**data)
     storage.new(new_product)
