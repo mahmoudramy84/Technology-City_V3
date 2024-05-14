@@ -5,13 +5,27 @@ from models.product import Product
 from models.review import Review
 from models import storage
 from werkzeug.security import check_password_hash, generate_password_hash
-
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from datetime import timedelta
+import os
+import jwt
+from functools import wraps
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 
+
+UPLOAD_FOLDER = 'uploads'  # Folder to store uploaded files
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# JWT secret key (replace with a secure random string in production)
+app.config['SECRET_KEY'] = '|C&U8hg=Zf+c-`;FVY^C'
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)  # Set token expiration time
+jwt = JWTManager(app)
+
 # Get all users
 @app.route('/api/users', methods=['GET'])
+@jwt_required()
 def get_users():
     users = storage.all(User).values()
     serialized_users = [user.to_dict() for user in users]
@@ -41,6 +55,7 @@ def get_product_by_id(product_id):
 
 #Get User by ID:
 @app.route('/api/users/<user_id>', methods=['GET'])
+@jwt_required()
 def get_user_by_id(user_id):
     user = storage.get(User, user_id)
     if user:
@@ -68,6 +83,15 @@ def create_user():
 @app.route('/api/products', methods=['POST'])
 def create_product():
     data = request.json
+    # Handle image upload
+    if 'image' in request.files:
+        file = request.files['image']
+        if file:
+            filename = file.filename
+            file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(file_path)
+            data['image_url'] = file_path
+
     new_product = Product(**data)
     storage.new(new_product)
     storage.save()
@@ -84,6 +108,7 @@ def create_review():
 
 # Update a user
 @app.route('/api/users/<user_id>', methods=['PUT'])
+@jwt_required()
 def update_user(user_id):
     data = request.json
     user = storage.get(User, user_id)
@@ -162,12 +187,16 @@ def signup():
     if existing_user:
         return jsonify({'error': 'User already exists'}), 400
 
-    #hashed_password = generate_password_hash(password)
-    new_user = User(email=email, password=password, first_name=first_name, last_name=last_name)
+    # Hash the password before storing it
+    hashed_password = generate_password_hash(password)
+
+    # Create a new user with hashed password
+    new_user = User(email=email, password=hashed_password, first_name=first_name, last_name=last_name)
     storage.new(new_user)
     storage.save()
 
     return jsonify({'message': 'User registered successfully'}), 201
+
 
 # Implement User Authentication Endpoint
 @app.route('/api/authenticate', methods=['POST'])
@@ -176,24 +205,19 @@ def authenticate():
     email = data.get('email')
     password = data.get('password')
 
-    if not email or not password:
-        return jsonify({'error': 'Email and password are required'}), 400
+    # Get all users from storage
+    users = storage.all(User).values()
 
-    user = next((user for user in storage.all(User).values() if user.email == email), None)
+    # Find the user with the specified email
+    user = next((user for user in users if user.email == email), None)
 
-    if not user:
-        return jsonify({'error': 'User not found'}), 404
+    if user and check_password_hash(user.password, password):
+        # Generate JWT token
+        access_token = create_access_token(identity=user.id)
+        return jsonify({'token': access_token}), 200
+    else:
+        return jsonify({'error': 'Invalid credentials'}), 401
 
-    print("Password provided:", password)
-    print("Hashed password in database:", user.password)
-
-    if not (user.password == password):
-        print("Password check failed")
-        return jsonify({'error': 'Invalid password'}), 401
-
-    print("Password check passed")
-
-    return jsonify({'message': 'User login successful'}), 200
 
 
 if __name__ == '__main__':
