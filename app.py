@@ -85,6 +85,15 @@ def create_user():
 @app.route('/api/products', methods=['POST'])
 def create_product():
     data = request.json
+    file = request.files.get('image_url')  # Get image file
+
+    # Handle image upload if a file is provided
+    if file:
+        filename = secure_filename(file.filename)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(file_path)
+        data['image_url'] = file_path  # Associate image path with product data
+
     new_product = Product(**data)
     storage.new(new_product)
     storage.save()
