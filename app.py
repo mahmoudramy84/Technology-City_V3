@@ -3,14 +3,13 @@ from flask_cors import CORS
 from models.user import User
 from models.product import Product
 from models.review import Review
+from models.cart import Cart
 from models import storage
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from datetime import timedelta
 import os
-import jwt
-from functools import wraps
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -22,12 +21,15 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # JWT secret key (replace with a secure random string in production)
 app.config['SECRET_KEY'] = '|C&U8hg=Zf+c-`;FVY^C'
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)  # Set token expiration time
+#app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)  # Set token expiration time
 jwt = JWTManager(app)
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Get all users
 @app.route('/api/users', methods=['GET'])
-@jwt_required()
+#@jwt_required()
 def get_users():
     users = storage.all(User).values()
     serialized_users = [user.to_dict() for user in users]
@@ -57,7 +59,7 @@ def get_product_by_id(product_id):
 
 #Get User by ID:
 @app.route('/api/users/<user_id>', methods=['GET'])
-@jwt_required()
+#@jwt_required()
 def get_user_by_id(user_id):
     user = storage.get(User, user_id)
     if user:
@@ -243,6 +245,64 @@ def upload_image():
 
     return jsonify({'error': 'Upload failed'}), 500
 
+# Get all items in the user's cart
+@app.route('/api/cart', methods=['GET'])
+@jwt_required()
+def get_cart_items():
+    user_id = get_jwt_identity()
+    user = storage.get(User, user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    cart_items = [cart_item.to_dict() for cart_item in user.cart_items]
+    return jsonify(cart_items)
+
+# Add a product to the user's cart
+@app.route('/api/cart', methods=['POST'])
+@jwt_required()
+def add_to_cart():
+    user_id = get_jwt_identity()
+    data = request.json
+    product_id = data.get('product_id')
+    quantity = data.get('quantity', 1)
+
+    if not product_id:
+        return jsonify({"error": "Product ID is required"}), 400
+
+    product = storage.get(Product, product_id)
+    if not product:
+        return jsonify({"error": "Product not found"}), 404
+
+    user = storage.get(User, user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    cart_item = next((item for item in user.cart_items if item.product_id == product_id), None)
+    if cart_item:
+        cart_item.quantity += quantity
+    else:
+        cart_item = Cart(user_id=user_id, product_id=product_id, quantity=quantity)
+        storage.new(cart_item)
+
+    storage.save()
+    return jsonify(cart_item.to_dict()), 201
+
+# Remove a product from the user's cart
+@app.route('/api/cart/<product_id>', methods=['DELETE'])
+@jwt_required()
+def remove_from_cart(product_id):
+    user_id = get_jwt_identity()
+    user = storage.get(User, user_id)
+    if not user:
+        return jsonify({"error": "User not found"}), 404
+
+    cart_item = next((item for item in user.cart_items if item.product_id == product_id), None)
+    if not cart_item:
+        return jsonify({"error": "Product not in cart"}), 404
+
+    storage.delete(cart_item)
+    storage.save()
+    return jsonify({"result": "Product removed from cart"})
 
 if __name__ == '__main__':
     app.run(debug=True)

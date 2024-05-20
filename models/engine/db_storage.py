@@ -3,16 +3,16 @@
 Contains the class DBStorage
 """
 
-from models.base_model import BaseModel, Base
+from models.base_model import Base
 from models.product import Product
 from models.review import Review
 from models.user import User
+from models.cart import Cart
 from os import getenv
-import sqlalchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
-classes = {"User": User, "Product": Product, "review": Review}
+classes = {"User": User, "Product": Product, "Review": Review, "Cart": Cart}
 
 
 class DBStorage:

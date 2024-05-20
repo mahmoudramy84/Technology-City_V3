@@ -5,39 +5,30 @@ Contains class BaseModel
 
 from datetime import datetime
 import models
-from os import getenv
 from sqlalchemy import Column, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 import uuid
-
-time = "%Y-%m-%dT%H:%M:%S.%f"
 
 Base = declarative_base()
 
 
 class BaseModel:
     """The BaseModel class from which future classes will be derived"""
-    id = Column(String(60), primary_key=True)
+    id = Column(String(60), primary_key=True, default=lambda: str(uuid.uuid4()))
     created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     def __init__(self, *args, **kwargs):
         """Initialization of the base model"""
-        self.id = Column(String(60), primary_key=True)
-        self.created_at = Column(DateTime, default=datetime.utcnow)
-        self.updated_at = Column(DateTime, default=datetime.utcnow)
+        for key, value in kwargs.items():
+            if key != "__class__":
+                setattr(self, key, value)
 
-        if kwargs:
-            for key, value in kwargs.items():
-                if key != "__class__":
-                    setattr(self, key, value)
+        if not kwargs.get("id"):
+            self.id = str(uuid.uuid4())
 
-            self.created_at = self.parse_datetime(kwargs.get("created_at", datetime.utcnow()))
-            self.updated_at = self.parse_datetime(kwargs.get("updated_at", datetime.utcnow()))
-
-            if not kwargs.get("id"):
-                self.id = str(uuid.uuid4())
-            
+        self.created_at = self.parse_datetime(kwargs.get("created_at", datetime.utcnow()))
+        self.updated_at = self.parse_datetime(kwargs.get("updated_at", datetime.utcnow()))
 
     def __str__(self):
         """String representation of the BaseModel class"""
@@ -51,8 +42,10 @@ class BaseModel:
         models.storage.save()
 
     def parse_datetime(self, dt_str):
+        if isinstance(dt_str, datetime):
+            return dt_str
         try:
-            return datetime.strptime(dt_str, "%Y-%m-%d %H:%M:%S.%f")
+            return datetime.fromisoformat(dt_str)
         except (TypeError, ValueError):
             return datetime.utcnow()
 
@@ -62,7 +55,7 @@ class BaseModel:
         for key, value in self.__dict__.items():
             if key != "_sa_instance_state":
                 if isinstance(value, datetime):
-                    new_dict[key] = value.strftime("%Y-%m-%d %H:%M:%S.%f")
+                    new_dict[key] = value.isoformat()
                 else:
                     new_dict[key] = value
         return new_dict

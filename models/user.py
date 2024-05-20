@@ -1,13 +1,9 @@
 #!/usr/bin/python3
 """ holds class User"""
 from models.base_model import BaseModel, Base
-from models.product import Product
-from os import getenv
 from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 from werkzeug.security import generate_password_hash
-
-
 
 class User(BaseModel, Base):
     """Representation of a user """
@@ -18,23 +14,12 @@ class User(BaseModel, Base):
     first_name = Column(String(128), nullable=True)
     last_name = Column(String(128), nullable=True)
 
-    # One-to-Many relationship: One user can have many reviews
-    reviews = relationship("Review", backref="author")
-
-    # Many-to-Many relationship: Users can have many products and vice versa
-    products = relationship("Product", backref='user', foreign_keys=[Product.user_id], primaryjoin="User.id==Product.user_id")
+    reviews = relationship("Review", backref="author", cascade="all, delete-orphan")
+    products = relationship("Product", backref='user', foreign_keys='Product.user_id', primaryjoin="User.id==Product.user_id")
+    cart_items = relationship("Cart", back_populates="user", cascade="all, delete-orphan")
 
     def __init__(self, *args, **kwargs):
         """initializes user"""
         super().__init__(*args, **kwargs)
-
-
-"""
-    @property
-    def password(self):
-        return self._password
-
-    @password.setter
-    def password(self, pwd):
-        self._password = hashlib.md5(pwd.encode()).hexdigest()
-"""
+        if 'password' in kwargs:
+            self.password = generate_password_hash(kwargs['password'])
