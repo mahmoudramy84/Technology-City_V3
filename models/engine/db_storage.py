@@ -12,27 +12,28 @@ from dotenv import load_dotenv
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+from urllib.parse import quote_plus
 
 classes = {"User": User, "Product": Product, "Review": Review, "Cart": Cart}
 
 load_dotenv()
 class DBStorage:
-    """interaacts with the MySQL database"""
+    """Interacts with the MySQL database"""
     __engine = None
     __session = None
 
     def __init__(self):
         """Instantiate a DBStorage object"""
         tech_MYSQL_USER = os.getenv('tech_MYSQL_USER')
-        tech_MYSQL_PWD = os.getenv('tech_MYSQL_PWD')
+        tech_MYSQL_PWD = quote_plus(os.getenv('tech_MYSQL_PWD'))
         tech_MYSQL_HOST = os.getenv('tech_MYSQL_HOST')
         tech_MYSQL_DB = os.getenv('tech_MYSQL_DB')
         tech_ENV = os.getenv('tech_ENV')
-        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.
-                                      format(tech_MYSQL_USER,
-                                             tech_MYSQL_PWD,
-                                             tech_MYSQL_HOST,
-                                             tech_MYSQL_DB))
+        
+        print(f"User: {tech_MYSQL_USER}, Password: {tech_MYSQL_PWD}, Host: {tech_MYSQL_HOST}, Database: {tech_MYSQL_DB}")
+
+        self.__engine = create_engine(f'mysql+pymysql://{tech_MYSQL_USER}:{tech_MYSQL_PWD}@{tech_MYSQL_HOST}/{tech_MYSQL_DB}')
+
         if tech_ENV == "test":
             Base.metadata.drop_all(self.__engine)
 

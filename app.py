@@ -10,7 +10,6 @@ from werkzeug.utils import secure_filename
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from datetime import timedelta
 from dotenv import load_dotenv
-
 import os
 
 app = Flask(__name__)
@@ -22,6 +21,12 @@ user = os.getenv('tech_MYSQL_USER')
 password = os.getenv('tech_MYSQL_PWD')
 host = os.getenv('tech_MYSQL_HOST')
 database = os.getenv('tech_MYSQL_DB')
+
+# Print to ensure variables are correct
+print(f"User: {user}, Password: {password}, Host: {host}, Database: {database}")
+
+# Set up your database connection string
+connection_string = f"mysql+pymysql://{user}:{password}@{host}/{database}"
 
 UPLOAD_FOLDER = 'uploads'  # Folder to store uploaded files
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
