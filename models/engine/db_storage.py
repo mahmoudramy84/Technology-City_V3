@@ -8,13 +8,14 @@ from models.product import Product
 from models.review import Review
 from models.user import User
 from models.cart import Cart
-from os import getenv
+from dotenv import load_dotenv
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 classes = {"User": User, "Product": Product, "Review": Review, "Cart": Cart}
 
-
+load_dotenv()
 class DBStorage:
     """interaacts with the MySQL database"""
     __engine = None
@@ -22,11 +23,11 @@ class DBStorage:
 
     def __init__(self):
         """Instantiate a DBStorage object"""
-        tech_MYSQL_USER = getenv('tech_MYSQL_USER')
-        tech_MYSQL_PWD = getenv('tech_MYSQL_PWD')
-        tech_MYSQL_HOST = getenv('tech_MYSQL_HOST')
-        tech_MYSQL_DB = getenv('tech_MYSQL_DB')
-        tech_ENV = getenv('tech_ENV')
+        tech_MYSQL_USER = os.getenv('tech_MYSQL_USER')
+        tech_MYSQL_PWD = os.getenv('tech_MYSQL_PWD')
+        tech_MYSQL_HOST = os.getenv('tech_MYSQL_HOST')
+        tech_MYSQL_DB = os.getenv('tech_MYSQL_DB')
+        tech_ENV = os.getenv('tech_ENV')
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.
                                       format(tech_MYSQL_USER,
                                              tech_MYSQL_PWD,

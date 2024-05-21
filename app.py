@@ -9,18 +9,26 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from datetime import timedelta
+from dotenv import load_dotenv
+
 import os
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
+load_dotenv()
 
+# Access the environment variables
+user = os.getenv('tech_MYSQL_USER')
+password = os.getenv('tech_MYSQL_PWD')
+host = os.getenv('tech_MYSQL_HOST')
+database = os.getenv('tech_MYSQL_DB')
 
 UPLOAD_FOLDER = 'uploads'  # Folder to store uploaded files
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # JWT secret key (replace with a secure random string in production)
-app.config['SECRET_KEY'] = '|C&U8hg=Zf+c-`;FVY^C'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 #app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)  # Set token expiration time
 jwt = JWTManager(app)
 
