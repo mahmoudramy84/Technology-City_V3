@@ -5,3 +5,4 @@ flask-jwt-extended
 mysqlclient
 werkzeug
 python-dotenv
+cryptography

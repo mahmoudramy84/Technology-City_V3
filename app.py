@@ -16,17 +16,6 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 load_dotenv()
 
-# Access the environment variables
-user = os.getenv('tech_MYSQL_USER')
-password = os.getenv('tech_MYSQL_PWD')
-host = os.getenv('tech_MYSQL_HOST')
-database = os.getenv('tech_MYSQL_DB')
-
-# Print to ensure variables are correct
-print(f"User: {user}, Password: {password}, Host: {host}, Database: {database}")
-
-# Set up your database connection string
-connection_string = f"mysql+pymysql://{user}:{password}@{host}/{database}"
 
 UPLOAD_FOLDER = 'uploads'  # Folder to store uploaded files
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
