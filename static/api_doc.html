@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #333;
+        }
+
+        pre {
+            background: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        code {
+            background: #f4f4f4;
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>API Documentation</h1>
+
+    <h2>Authentication Endpoints</h2>
+
+    <h3>POST /api/auth/admin/authenticate</h3>
+    <p>Authenticate an admin user and get a JWT token.</p>
+    <pre><code>Request Body:
+{
+  "email": "admin@example.com",
+  "password": "password"
+}
+
+Response:
+{
+  "token": "your_jwt_token"
+}</code></pre>
+
+    <h2>User Endpoints</h2>
+
+    <h3>GET /api/users</h3>
+    <p>Retrieve all users.</p>
+    <pre><code>Response:
+[
+  {
+    "id": "user_id",
+    "email": "user@example.com",
+    "first_name": "First",
+    "last_name": "Last"
+  }
+]</code></pre>
+
+    <h3>GET /api/users/&lt;user_id&gt;</h3>
+    <p>Retrieve a specific user by ID.</p>
+    <pre><code>Response:
+{
+  "id": "user_id",
+  "email": "user@example.com",
+  "first_name": "First",
+  "last_name": "Last"
+}</code></pre>
+
+    <h3>POST /api/users</h3>
+    <p>Create a new user.</p>
+    <pre><code>Request Body:
+{
+  "email": "newuser@example.com",
+  "password": "password",
+  "first_name": "First",
+  "last_name": "Last"
+}
+
+Response:
+{
+  "id": "new_user_id",
+  "email": "newuser@example.com",
+  "first_name": "First",
+  "last_name": "Last"
+}</code></pre>
+
+    <h3>PUT /api/users/&lt;user_id&gt;</h3>
+    <p>Update a user.</p>
+    <pre><code>Request Body:
+{
+  "first_name": "Updated",
+  "last_name": "Name"
+}
+
+Response:
+{
+  "id": "user_id",
+  "email": "user@example.com",
+  "first_name": "Updated",
+  "last_name": "Name"
+}</code></pre>
+
+    <h3>DELETE /api/users/&lt;user_id&gt;</h3>
+    <p>Delete a user.</p>
+    <pre><code>Response:
+{
+  "message": "User deleted successfully"
+}</code></pre>
+
+    <h2>Product Endpoints</h2>
+
+    <h3>GET /api/products</h3>
+    <p>Retrieve all products.</p>
+    <pre><code>Response:
+[
+  {
+    "id": "product_id",
+    "name": "Product Name",
+    "price": 100,
+    "description": "Product Description",
+    "images": []
+  }
+]</code></pre>
+
+    <h3>GET /api/products/&lt;product_id&gt;</h3>
+    <p>Retrieve a specific product by ID.</p>
+    <pre><code>Response:
+{
+  "id": "product_id",
+  "name": "Product Name",
+  "price": 100,
+  "description": "Product Description",
+  "images": []
+}</code></pre>
+
+    <h3>POST /api/products</h3>
+    <p>Create a new product.</p>
+    <pre><code>Request Body:
+{
+  "name": "Product Name",
+  "price": 100,
+  "description": "Product Description",
+  "image_url": "path/to/image.jpg"
+}
+
+Response:
+{
+  "id": "new_product_id",
+  "name": "Product Name",
+  "price": 100,
+  "description": "Product Description",
+  "images": ["path/to/image.jpg"]
+}</code></pre>
+
+    <h3>PATCH /api/products/&lt;product_id&gt;</h3>
+    <p>Edit specific attributes of a product.</p>
+    <pre><code>Request Body:
+{
+  "name": "Updated Product Name",
+  "price": 150
+}
+
+Response:
+{
+  "id": "product_id",
+  "name": "Updated Product Name",
+  "description": "Product Description",
+  "price": 150,
+  "images": []
+}</code></pre>
+
+    <h3>DELETE /api/products/&lt;product_id&gt;</h3>
+    <p>Delete a product.</p>
+    <pre><code>Response:
+{
+  "message": "Product deleted successfully"
+}</code></pre>
+
+    <h3>DELETE /api/products/&lt;product_id&gt;/images/&lt;image_name&gt;</h3>
+    <p>Delete a specific image from a product.</p>
+    <pre><code>Response:
+{
+  "message": "Image deleted successfully"
+}</code></pre>
+
+    <h2>Review Endpoints</h2>
+
+    <h3>GET /api/reviews</h3>
+    <p>Retrieve all reviews.</p>
+    <pre><code>Response:
+[
+  {
+    "id": "review_id",
+    "product_id": "product_id",
+    "user_id": "user_id",
+    "text": "Review text"
+  }
+]</code></pre>
+
+    <h3>GET /api/reviews/&lt;review_id&gt;</h3>
+    <p>Retrieve a specific review by ID.</p>
+    <pre><code>Response:
+{
+  "id": "review_id",
+  "product_id": "product_id",
+  "user_id": "user_id",
+  "text": "Review text"
+}</code></pre>
+
+    <h3>POST /api/reviews</h3>
+    <p>Create a new review.</p>
+    <pre><code>Request Body:
+{
+  "product_id": "product_id",
+  "user_id": "user_id",
+  "text": "Review text"
+}
+
+Response:
+{
+  "id": "new_review_id",
+  "product_id": "product_id",
+  "user_id": "user_id",
+  "text": "Review text"
+}</code></pre>
+
+    <h3>PUT /api/reviews/&lt;review_id&gt;</h3>
+    <p>Update a review.</p>
+    <pre><code>Request Body:
+{
+  "text": "Updated review text"
+}
+
+Response:
+{
+  "id": "review_id",
+  "product_id": "product_id",
+  "user_id": "user_id",
+  "text": "Updated review text"
+}</code></pre>
+
+    <h3>DELETE /api/reviews/&lt;review_id&gt;</h3>
+    <p>Delete a review.</p>
+    <pre><code>Response:
+{
+  "message": "Review deleted successfully"
+}</code></pre>
+
+    <h2>Cart Endpoints</h2>
+
+    <h3>GET /api/cart</h3>
+    <p>Retrieve all items in the user's cart.</p>
+    <pre><code>Response:
+[
+  {
+    "id": "cart_item_id",
+    "product_id": "product_id",
+    "quantity": 2
+  }
+]</code></pre>
+
+    <h3>POST /api/cart</h3>
+    <p>Add a product to the user's cart.</p>
+    <pre><code>Request Body:
+{
+  "product_id": "product_id",
+  "quantity": 2
+}
+
+Response:
+{
+  "id": "new_cart_item_id",
+  "product_id": "product_id",
+  "quantity": 2
+}</code></pre>
+
+    <h3>DELETE /api/cart/&lt;product_id&gt;</h3>
+    <p>Remove a product from the user's cart.</p>
+    <pre><code>Response:
+{
+  "message": "Product removed from cart"
+}</code></pre>
+
+    <h2>Example cURL Requests</h2>
+
+    <h3>Authentication</h3>
+    <pre><code>curl -X POST http://localhost:5000/api/auth/admin/authenticate \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "admin@example.com",
+  "password": "password"
+}'</code></pre>
+
+    <h3>Users</h3>
+
+    <p><strong>Get all users:</strong></p>
+    <pre><code>curl -X GET http://localhost:5000/api/users</code></pre>
+
+    <p><strong>Get user by ID:</strong></p>
+    <pre><code>curl -X GET http://localhost:5000/api/users/&lt;user_id&gt;</code></pre>
+
+    <p><strong>Create a new user:</strong></p>
+    <pre><code>curl -X POST http://localhost:5000/api/users \
+-H "Content-Type: application/json" \
+-d '{
+  "email": "newuser@example.com",
+  "password": "password",
+  "first_name": "First",
+  "last_name": "Last"
+}'</code></pre>
+
+    <p><strong>Update a user:</strong></p>
+    <pre><code>curl -X PUT http://localhost:5000/api/users/&lt;user_id&gt; \
+-H "Content-Type: application/json" \
+-d '{
+  "first_name": "Updated",
+  "last_name": "Name"
+}'</code></pre>
+
+    <p><strong>Delete a user:</strong></p>
+    <pre><code>curl -X DELETE http://localhost:5000/api/users/&lt;user_id&gt;</code></pre>
+
+    <h3>Products</h3>
+
+    <p><strong>Get all products:</strong></p>
+    <pre><code>curl -X GET http://localhost:5000/api/products</code></pre>
+
+    <p><strong>Get product by ID:</strong></p>
+    <pre><code>curl -X GET http://localhost:5000/api/products/&lt;product_id&gt;</code></pre>
+
+    <p><strong>Create a new product:</strong></p>
+    <pre><code>curl -X POST http://localhost:5000/api/products \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer <your_jwt_token>" \
+-d '{
+  "name": "Product Name",
+  "price": 100,
+  "description": "Product Description",
+  "image_url": "path/to/image.jpg"
+}'</code></pre>
+
+    <p><strong>Edit product attributes:</strong></p>
+    <pre><code>curl -X PATCH http://localhost:5000/api/products/&lt;product_id&gt; \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer <your_jwt_token>" \
+-d '{
+  "name": "Updated Product Name",
+  "price": 150
+}'</code></pre>
+
+    <p><strong>Delete product:</strong></p>
+    <pre><code>curl -X DELETE http://localhost:5000/api/products/&lt;product_id&gt; \
+-H "Authorization: Bearer <your_jwt_token>"</code></pre>
+
+    <p><strong>Delete product image:</strong></p>
+    <pre><code>curl -X DELETE http://localhost:5000/api/products/&lt;product_id&gt;/images/&lt;image_name&gt; \
+-H "Authorization: Bearer <your_jwt_token>"</code></pre>
+
+    <h3>Reviews</h3>
+
+    <p><strong>Get all reviews:</strong></p>
+    <pre><code>curl -X GET http://localhost:5000/api/reviews</code></pre>
+
+    <p><strong>Get review by ID:</strong></p>
+    <pre><code>curl -X GET http://localhost:5000/api/reviews/&lt;review_id&gt;</code></pre>
+
+    <p><strong>Create a new review:</strong></p>
+    <pre><code>curl -X POST http://localhost:5000/api/reviews \
+-H "Content-Type: application/json" \
+-d '{
+  "product_id": "product_id",
+  "user_id": "user_id",
+  "text": "Review text"
+}'</code></pre>
+
+    <p><strong>Update a review:</strong></p>
+    <pre><code>curl -X PUT http://localhost:5000/api/reviews/&lt;review_id&gt; \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer <your_jwt_token>" \
+-d '{
+  "text": "Updated review text"
+}'</code></pre>
+
+    <p><strong>Delete a review:</strong></p>
+    <pre><code>curl -X DELETE http://localhost:5000/api/reviews/&lt;review_id&gt; \
+-H "Authorization: Bearer <your_jwt_token>"</code></pre>
+
+    <h3>Cart</h3>
+
+    <p><strong>Get all cart items:</strong></p>
+    <pre><code>curl -X GET http://localhost:5000/api/cart \
+-H "Authorization: Bearer <your_jwt_token>"</code></pre>
+
+    <p><strong>Add product to cart:</strong></p>
+    <pre><code>curl -X POST http://localhost:5000/api/cart \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer <your_jwt_token>" \
+-d '{
+  "product_id": "product_id",
+  "quantity": 2
+}'</code></pre>
+
+    <p><strong>Remove product from cart:</strong></p>
+    <pre><code>curl -X DELETE http://localhost:5000/api/cart/&lt;product_id&gt; \
+-H "Authorization: Bearer <your_jwt_token>"</code></pre>
+</body>
+
+</html>

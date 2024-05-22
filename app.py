@@ -8,6 +8,7 @@ from models import storage
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
+from flask import Flask, send_from_directory
 from datetime import timedelta
 from dotenv import load_dotenv
 import os
@@ -16,6 +17,9 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 load_dotenv()
 
+@app.route('/api/doc')
+def api_doc():
+    return send_from_directory('static', 'api_doc.html')
 
 UPLOAD_FOLDER = 'uploads'  # Folder to store uploaded files
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -23,7 +27,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # JWT secret key (replace with a secure random string in production)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-#app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)  # Set token expiration time
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)  # Set token expiration time
 jwt = JWTManager(app)
 
 def allowed_file(filename):

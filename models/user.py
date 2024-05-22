@@ -21,5 +21,5 @@ class User(BaseModel, Base):
     def __init__(self, *args, **kwargs):
         """initializes user"""
         super().__init__(*args, **kwargs)
-        if 'password' in kwargs:
-            self.password = generate_password_hash(kwargs['password'])
+"""        if 'password' in kwargs:
+            self.password = generate_password_hash(kwargs['password'])"""
