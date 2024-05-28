@@ -12,6 +12,7 @@ from flask import Flask, send_from_directory
 from datetime import timedelta
 from dotenv import load_dotenv
 import os
+import logging
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -27,8 +28,14 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 # JWT secret key (replace with a secure random string in production)
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
-app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=15)  # Set token expiration time
+app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(minutes=30)  # Set token expiration time
 jwt = JWTManager(app)
+
+logging.basicConfig(level=logging.ERROR)
+
+@app.teardown_appcontext
+def close_storage(exception):
+    storage.close()
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -44,9 +51,12 @@ def get_users():
 # Get all products
 @app.route('/api/products', methods=['GET'])
 def get_products():
-    products = storage.all(Product).values()
-    serialized_products = [product.to_dict() for product in products]
-    return jsonify(serialized_products)
+    try:
+        products = storage.all(Product).values()
+        return jsonify([product.to_dict() for product in products]), 200
+    except Exception as e:
+        app.logger.error(f"Exception on /api/products [GET]: {e}")
+        return jsonify({'error': 'Internal Server Error'}), 500
 
 # Get all reviews
 @app.route('/api/reviews', methods=['GET'])
