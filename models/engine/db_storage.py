@@ -13,6 +13,8 @@ from  os  import getenv
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.pool import QueuePool
+from contextlib import contextmanager
+
 #from urllib.parse import quote_plus
 
 classes = {"User": User, "Product": Product, "Review": Review, "Cart": Cart}
@@ -81,3 +83,16 @@ class DBStorage:
         """Retrieve an object by class and ID"""
         with self.__session() as session:
             return session.query(cls).get(id)
+
+    @contextmanager
+    def session_scope(self):
+        """Provide a transactional scope around a series of operations."""
+        session = self.__session()
+        try:
+            yield session
+            session.commit()
+        except:
+            session.rollback()
+            raise
+        finally:
+            session.close()
